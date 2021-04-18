@@ -1,6 +1,6 @@
 #include "BLEMidiServer.h"
 
-void BLEMidiServerClass::begin(const std::string deviceName)
+void BLEMidiServerClass::begin(const std::string deviceName, const std::string peerName)
 {
     BLEMidi::begin(deviceName);
     BLEServer *pServer = BLEDevice::createServer();
@@ -58,6 +58,9 @@ void MyServerCallbacks::onDisconnect(BLEServer* pServer) {
     *connected = false;
     if(onDisconnectCallback != nullptr)
         onDisconnectCallback();
+    
+    BLEAdvertising *pAdvertising = pServer->getAdvertising();
+    pAdvertising->start();
 }
 
 CharacteristicCallback::CharacteristicCallback(std::function<void(uint8_t*, uint8_t)> onWriteCallback) : onWriteCallback(onWriteCallback) {}

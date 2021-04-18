@@ -5,7 +5,7 @@
 
 class BLEMidiServerClass : public BLEMidi {
 public:
-    void begin(const std::string deviceName);
+    void begin(const std::string deviceName, const std::string peerName="");
 
     void setOnConnectCallback(void (*const onConnectCallback)());
     void setOnDisconnectCallback(void (*const onDisconnectCallback)());

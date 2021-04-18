@@ -8,7 +8,7 @@ class BLEMidiClientClass : public BLEMidi {
 public:
 
     /// Initializes the BLEMidiClient
-    void begin(const std::string deviceName) override;
+    void begin(const std::string deviceName, const std::string deviceToLook) override;
 
     /// Begins a scan, and returns the number of MIDI devices found.
     int scan();
@@ -23,7 +23,6 @@ public:
     void setOnConnectCallback(void (*const onConnectCallback)());
     void setOnDisconnectCallback(void (*const onDisconnectCallback)());
 
-
 private:
     /// This method is called by the base Midi class to send packets.
     virtual void sendPacket(uint8_t *packet, uint8_t packetSize) override;
@@ -33,6 +32,7 @@ private:
     BLERemoteCharacteristic* pRemoteCharacteristic;
     void (*onConnectCallback)() = nullptr;
     void (*onDisconnectCallback)() = nullptr;
+    std::string deviceToLookFor;
 
 };
 

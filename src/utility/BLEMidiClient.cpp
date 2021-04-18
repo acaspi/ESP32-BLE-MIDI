@@ -1,8 +1,9 @@
 #include "BLEMidiClient.h"
 
-void BLEMidiClientClass::begin(const std::string deviceName)
+void BLEMidiClientClass::begin(const std::string deviceName, const std::string deviceToLook)
 {
     BLEMidi::begin(deviceName);
+    deviceToLookFor = deviceToLook;
 }
 
 int BLEMidiClientClass::scan()
@@ -22,8 +23,11 @@ int BLEMidiClientClass::scan()
         BLEAdvertisedDevice device = foundDevices.getDevice(i);
         auto deviceStr = "name = \"" + device.getName() + "\", address = "  + device.getAddress().toString();
         if (device.haveServiceUUID() && device.isAdvertisingService(BLEUUID(MIDI_SERVICE_UUID))) {
-            debug.println((" - BLE MIDI device : " + deviceStr).c_str());
-            foundMidiDevices.push_back(device);
+            if (device.getName().find(deviceToLookFor) != std::string::npos)
+            {
+                debug.println((" - Found BLE MIDI device looking for: " + deviceStr).c_str());
+                foundMidiDevices.push_back(device);
+            }
         }
         else
             debug.printf((" - Other type of BLE device : " + deviceStr).c_str());
@@ -71,7 +75,7 @@ bool BLEMidiClientClass::connect(uint32_t deviceIndex)
     }
     debug.println("Registering characteristic callback");
     if(pRemoteCharacteristic->canNotify()) {                                                                        
-        pRemoteCharacteristic->registerForNotify([](BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify){
+         pRemoteCharacteristic->registerForNotify([](BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify){
             BLEMidiClient.receivePacket(pData, length); // We call the member function of the only instantiated class.
             vTaskDelay(0);      // We leave some time for the IDLE task call esp_task_wdt_reset_watchdog
                                 // See comment from atanisoft here : https://github.com/espressif/arduino-esp32/issues/2493
